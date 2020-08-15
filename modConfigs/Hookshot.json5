@@ -1,0 +1,12 @@
+{
+	// The maximum range the Hookshot can reach.
+	"defaultMaxRange": 24.0,
+	// The maximum pulling speed the Hookshot can do.
+	"defaultMaxSpeed": 10.0,
+	// The durability of the Hookshot.
+	"durability": 0,
+	// The multiplier of the Long Mod.
+	"rangeMult": 2.0,
+	// The multiplier of the Quick Mod.
+	"quickMult": 1.5
+}
