@@ -12,34 +12,36 @@ versionRex = re.compile('Game[\s]*Version:[\s]*(([0-9]*\.){1,}[0-9]*|[forgeFORGE
 # To get a good copy, just open one link for a curseforge mod, and right-click "inspect" page or "developer tools".
 # Get a copy of your "Cookies" header for the initial request to curseforge.com, specifically just the cloudflare ones.
 # Paste that cookie string below, and copy and paste your User Agent string below
-UAString = "Mozilla/5.0 (Windows NT 10.0; rv:78.0) Gecko/20100101 Firefox/78.0"
-CFCookies = "__cfduid=de1c20642a4f1ce9d249eeb213ad27bcd1597164214; Unique_ID_v2=117c753f7881403ba2e1052987689003; ResponsiveSwitch.DesktopMode=1; AWSALB=mY0M8agQ1yfCac0+fx5K1suYBxdC152zlntBpjHALbouVd7k8GTZCIbQHVC5OBlP7E+vucVjrrlLz/7+EZaltZ9DtjYJNlV5QxrIWjPyzUgyY3x1VEN2ILxlZhkH; AWSALBCORS=mY0M8agQ1yfCac0+fx5K1suYBxdC152zlntBpjHALbouVd7k8GTZCIbQHVC5OBlP7E+vucVjrrlLz/7+EZaltZ9DtjYJNlV5QxrIWjPyzUgyY3x1VEN2ILxlZhkH; __cf_bm=d1913713a84e86704a8e3e19fefe4ed8f2d26715-1598157873-1800-Ae2C4KMVNS75yC0HVy5OxlzJg1nLDrUhUSB0sLXlP+Dsi6LRE7MdUYFXpyR/uy00oMqI9/DBTrzETR9zrS8t6/g="
+UAString = "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/85.0.4183.83 Safari/537.36"
+Cookies = '__cfduid=d3f82321171cc068bcdb6d98f65dd5a581598759851; Unique_ID_v2=f2472c1b117c4e8f9c1ee61db39db737; ResponsiveSwitch.DesktopMode=1; __cf_bm=3d2845d3aaf20904466b338f2e86f62fe6672345-1598760774-1800-AXX+pl+hZzGRSsEYjRq+rpvSm//XXtNu7KTofyzF8Nf7N8KLZOtDmRB7wVshJf6rcWsfDlMv8FbGrC3QlH+7U7U=; AWSALB=fwhkTCn6U+AWfjEm19+4NsBiIloeN+ai6iqVIzL3LMQiMDdE+DjmoNHOZN0ZwgG0CSK4Uh4/czwS3b8DHSaYk/eSzn3nAeI+xP3y0MhwDtHlZK1PpnBWPp6+N0gr; AWSALBCORS=fwhkTCn6U+AWfjEm19+4NsBiIloeN+ai6iqVIzL3LMQiMDdE+DjmoNHOZN0ZwgG0CSK4Uh4/czwS3b8DHSaYk/eSzn3nAeI+xP3y0MhwDtHlZK1PpnBWPp6+N0gr'
 
 headers = {
-    "User-Agent": UAString,
-    "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8",
-    "Accept-Language": "en-US,en;q=0.5",
-    "Accept-Encoding": "gzip, deflate, br",
-    "DNT": "1",
-    "Connection": "keep-alive",
-    "Cookie": CFCookies,
-    "Upgrade-Insecure-Requests": "1",
-    "Cache-Control": "max-age=0",
-    "TE": "Trailers"
+    "user-agent": UAString,
+    "cookie": Cookies,
+    "accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9",
+    "accept-encoding": "gzip, deflate, br",
+    "accept-language": "en-US,en;q=0.9",
+    "dnt": "1",
+    "referrer": "https://www.curseforge.com/minecraft/mc-mods/adabranium",
+    "upgrade-insecure-requests": "1"
 }
-
+headers = sorted(headers.items() ,  key=lambda x: x[0])
+sesh = requests.Session()
+sesh.headers.update(headers)
 modlist = json.load(open('teamods.json', 'r'))
 
 versionList = {}
 for mod in modlist:
-    req = requests.get(modlist[mod], headers=headers)
+    req = sesh.get(modlist[mod])
     if req.status_code < 400:
         version = versionRex.search(req.text)
         if version:
             versionList[mod] = version[1]
         else:
             versionList[mod] = req.reason
-    print(mod, versionList[mod])
+        print(mod, versionList[mod])
+    else:
+        print("ERROR fetching {}".format(mod))
     time.sleep(float(math.floor(random.random()*100))/100)
 
 with open('modvers.json', 'w+') as f:
